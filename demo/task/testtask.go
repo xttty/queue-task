@@ -8,10 +8,11 @@ import (
 	"queue-task/v1/job"
 	"queue-task/v1/msg"
 	"queue-task/v1/queue"
+	"queue-task/v1/util"
 )
 
 // CreateTestJob 新建测试队列任务
-func CreateTestJob() CreateJobFunc {
+func CreateTestJob() util.CreateJobFunc {
 	return func() iface.IJob {
 		// 初始化一个队列
 		q := queue.NewKaproxy(conf.Config.Queue.Kaproxy["default"], TestKaproxyTopic, TestKaproxyGroup)

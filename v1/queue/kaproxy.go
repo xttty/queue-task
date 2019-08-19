@@ -4,7 +4,7 @@ package queue
 
 import (
 	"fmt"
-	"queue-task/conf"
+	"queue-task/demo/conf"
 	"queue-task/v1/iface"
 
 	"gitlab.meitu.com/platform/kaproxy/client"

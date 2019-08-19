@@ -14,6 +14,3 @@ type IJob interface {
 
 // JobHandle 业务处理方法
 type JobHandle func([]byte)
-
-// LogHandle 日志记录函数
-type LogHandle func(string)

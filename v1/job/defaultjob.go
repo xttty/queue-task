@@ -2,7 +2,7 @@ package job
 
 import (
 	"fmt"
-	"queue-task/conf"
+	"queue-task/demo/conf"
 	"queue-task/v1/iface"
 	"queue-task/v1/util"
 	"time"
@@ -38,6 +38,7 @@ func (job *DefaultJob) Send(msg iface.IMessage) {
 // Work 消费消息
 func (job *DefaultJob) Work() {
 	if !job.IsWorking {
+		job.BaseJob.Work()
 		job.IsWorking = true
 		// 新建channel 因为job是关闭状态
 		for i := 0; i < job.workersCnt; i++ {
@@ -61,11 +62,12 @@ func (job *DefaultJob) Stop() {
 		fmt.Println("kafka job worker", i, "is stopped")
 	}
 	job.IsWorking = false
+	job.BaseJob.Stop()
 }
 
 // RegisterHandleFunc 注册业务回调方法
 func (job *DefaultJob) RegisterHandleFunc(f iface.JobHandle) {
-	job.BaseJob.RegisterFunc(f)
+	job.BaseJob.RegisterHandleFunc(f)
 }
 
 func (job *DefaultJob) startWorker(id int, f iface.JobHandle) {
