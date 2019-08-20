@@ -23,6 +23,14 @@ type CoreConf struct {
 // QueueConf 队列配置
 type QueueConf struct {
 	Kaproxy map[string]KaproxyQueueConf
+	Redis   map[string]RedisQueueConf
+}
+
+// RedisQueueConf redis队列连接配置
+type RedisQueueConf struct {
+	Addr     string
+	Password string
+	DB       int
 }
 
 // KaproxyQueueConf kafka队列配置

@@ -3,3 +3,9 @@
     host = "192.168.199.11"
     port = 8080
     token = "ae303f34d6284b5093cc4a465fe283a4"
+
+[redis]
+    [redis.test]
+    addr = "127.0.0.1:6379"
+    password = "123123"
+    db = 0
