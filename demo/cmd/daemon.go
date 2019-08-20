@@ -2,8 +2,8 @@ package main
 
 import (
 	"path/filepath"
-	"queue-task/demo/conf"
 	"queue-task/demo/task"
+	"queue-task/v1/conf"
 	"queue-task/v1/util"
 	"sync"
 	"time"

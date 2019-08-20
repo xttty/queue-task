@@ -3,7 +3,7 @@ package task
 import (
 	"encoding/json"
 	"fmt"
-	"queue-task/demo/conf"
+	"queue-task/v1/conf"
 	"queue-task/v1/iface"
 	"queue-task/v1/job"
 	"queue-task/v1/msg"
@@ -15,10 +15,8 @@ import (
 func CreateTestJob() util.CreateJobFunc {
 	return func() iface.IJob {
 		// 初始化一个队列
-		addr := conf.Config.Queue.Redis["test"].Addr
-		password := conf.Config.Queue.Redis["test"].Password
-		db := conf.Config.Queue.Redis["test"].DB
-		q := queue.NewRedisQueue(addr, password, TestRedisJobKey, db)
+		queueConf := conf.Config.Queue.Redis["test"]
+		q := queue.NewRedisQueue(&queueConf, TestRedisJobKey)
 		// 生成job
 		j := job.NewDefaultJob("test", q, &conf.Config.Job.Default)
 		// 注册业务回调方法

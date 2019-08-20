@@ -2,6 +2,7 @@ package queue
 
 import (
 	"fmt"
+	"queue-task/v1/conf"
 	"queue-task/v1/iface"
 	"queue-task/v1/util"
 
@@ -15,11 +16,11 @@ type RedisQueue struct {
 }
 
 // NewRedisQueue 构造redis队列
-func NewRedisQueue(addr, password, key string, db int) *RedisQueue {
+func NewRedisQueue(conf *conf.RedisQueueConf, key string) *RedisQueue {
 	client := redis.NewClient(&redis.Options{
-		Addr:     addr,
-		Password: password,
-		DB:       db,
+		Addr:     conf.Addr,
+		Password: conf.Password,
+		DB:       conf.DB,
 	})
 	return &RedisQueue{
 		client: client,

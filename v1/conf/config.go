@@ -1,14 +1,14 @@
-// Package conf 配置文件包，所有配置文件使用toml语法编写
 package conf
 
 import (
+	"fmt"
 	"queue-task/v1/util"
 	"sync"
 
 	"github.com/BurntSushi/toml"
 )
 
-// TomlConfig 项目配置
+// TomlConfig 总配置
 type TomlConfig struct {
 	Core  CoreConf
 	Queue QueueConf
@@ -22,8 +22,7 @@ type CoreConf struct {
 
 // QueueConf 队列配置
 type QueueConf struct {
-	Kaproxy map[string]KaproxyQueueConf
-	Redis   map[string]RedisQueueConf
+	Redis map[string]RedisQueueConf
 }
 
 // RedisQueueConf redis队列连接配置
@@ -33,24 +32,17 @@ type RedisQueueConf struct {
 	DB       int
 }
 
-// KaproxyQueueConf kafka队列配置
-type KaproxyQueueConf struct {
-	Host  string
-	Port  int
-	Token string
-}
-
 // JobConf 任务配置
 type JobConf struct {
 	Default DefaultJobConf
 }
 
-// DefaultJobConf kafka任务配置
+// DefaultJobConf 默认任务配置
 type DefaultJobConf struct {
 	WorkersCnt int
 }
 
-// Config 配置实例
+// Config 总配置
 var Config *TomlConfig
 var once sync.Once
 
@@ -65,12 +57,12 @@ func Init(confPath string) {
 		qConfPath := Config.Core.ConfPath + "/queueconf.toml"
 		_, err := toml.DecodeFile(qConfPath, &(Config.Queue))
 		if err != nil {
-			util.WriteLog(err.Error())
+			util.WriteLog(fmt.Sprintf("queue config load failed, err: %s", err.Error()))
 		}
 		jConfPath := Config.Core.ConfPath + "/jobconf.toml"
 		_, err = toml.DecodeFile(jConfPath, &(Config.Job))
 		if err != nil {
-			util.WriteLog(err.Error())
+			util.WriteLog(fmt.Sprintf("job config load failed, err: %s", err.Error()))
 		}
 	})
 }

@@ -2,7 +2,7 @@ package job
 
 import (
 	"fmt"
-	"queue-task/demo/conf"
+	"queue-task/v1/conf"
 	"queue-task/v1/iface"
 	"queue-task/v1/util"
 	"time"
