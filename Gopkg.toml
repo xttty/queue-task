@@ -31,6 +31,7 @@
 
 [[constraint]]
   name = "github.com/go-redis/redis"
+  source = "git@github.com:go-redis/redis.git"
 
 [prune]
   go-tests = true
