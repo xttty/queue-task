@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  golang-dev:
+    image: golang:1.11
+    container_name: go.dev
+    restart: on-failure
+    volumes:
+      - ".:/go/src/queue-task"
+    depends_on:
+      - redis.dev
+    #防止容器构建后自动退出
+    stdin_open: true
+    tty: true
+  redis.dev:
+     image: redis
+     restart: on-failure
+     container_name: redis.dev
+     
