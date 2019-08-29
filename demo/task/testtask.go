@@ -9,6 +9,7 @@ import (
 	"queue-task/v1/msg"
 	"queue-task/v1/queue"
 	"queue-task/v1/util"
+	"time"
 )
 
 // CreateTestJob 新建测试队列任务
@@ -29,8 +30,25 @@ func CreateTestJob() util.CreateJobFunc {
 func TestPerform(data []byte) {
 	var message msg.BaseMsg
 	err := json.Unmarshal(data, &message)
-	if err != nil {
-		fmt.Println(err)
+	if err == nil {
+		tempTime := message.Data["date"].(float64)
+		time := int(tempTime)
+		fmt.Println(time)
+	} else {
+		util.WriteLog(err.Error())
 	}
-	fmt.Println(message)
+}
+
+func TestSendMsg() {
+	createFunc := CreateTestJob()
+	testJob := createFunc()
+	for i := 0; i < 10; i++ {
+		message := &msg.BaseMsg{
+			Data: msg.H{
+				"date": time.Now().Second(),
+			},
+		}
+		testJob.Send(message)
+		time.Sleep(time.Second)
+	}
 }

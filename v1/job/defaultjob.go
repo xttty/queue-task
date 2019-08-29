@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// DefaultJob kafka任务
+// DefaultJob 默认任务
 type DefaultJob struct {
 	*BaseJob
 	workersCnt int
@@ -38,11 +38,11 @@ func (job *DefaultJob) Send(msg iface.IMessage) {
 // Work 消费消息
 func (job *DefaultJob) Work() {
 	if !job.IsWorking {
-		job.BaseJob.Work()
+		util.AddJob(job.name, job)
 		job.IsWorking = true
 		// 新建channel 因为job是关闭状态
 		for i := 0; i < job.workersCnt; i++ {
-			job.exit[i] = make(chan bool, 1)
+			job.exit[i] = make(chan bool)
 		}
 		for i := 0; i < job.workersCnt; i++ {
 			go job.startWorker(i, job.BaseJob.handleFunc)
@@ -59,7 +59,7 @@ func (job *DefaultJob) Stop() {
 		job.exit[i] <- true
 		// 关闭通知chan
 		close(job.exit[i])
-		fmt.Println("kafka job worker", i, "is stopped")
+		util.WriteLog(fmt.Sprintln("default job worker", i, "is stopped"))
 	}
 	job.IsWorking = false
 	job.BaseJob.Stop()
@@ -71,7 +71,7 @@ func (job *DefaultJob) RegisterHandleFunc(f iface.JobHandle) {
 }
 
 func (job *DefaultJob) startWorker(id int, f iface.JobHandle) {
-	fmt.Println("kafka job worker", id, "is starting")
+	util.WriteLog(fmt.Sprintln("default job worker", id, "is starting"))
 	var timeRest time.Duration
 	for {
 		select {

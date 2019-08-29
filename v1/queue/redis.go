@@ -47,7 +47,9 @@ func (rq *RedisQueue) Enqueue(msg iface.IMessage) bool {
 func (rq *RedisQueue) Dequeue() ([]byte, bool) {
 	data, err := rq.client.LPop(rq.key).Result()
 	if err != nil {
-		util.WriteLog(fmt.Sprintf("dequeue failed\tkey:%s\terr:%s", rq.key, err.Error()))
+		if err.Error() != "redis: nil" {
+			util.WriteLog(fmt.Sprintf("dequeue failed\tkey:%s\terr:%s", rq.key, err.Error()))
+		}
 		return nil, false
 	}
 	return []byte(data), true
