@@ -2,7 +2,7 @@ version: "3"
 
 services:
   golang-dev:
-    image: golang:1.11
+    image: golang:latest
     container_name: go.dev
     restart: on-failure
     volumes:
