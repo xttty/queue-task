@@ -1,10 +1,10 @@
 version: "3"
 
 services:
-  golang-dev:
+  golang.dev:
     image: golang:latest
     container_name: go.dev
-    restart: on-failure
+    restart: always
     volumes:
       - ".:/go/src/queue-task"
     depends_on:
@@ -13,7 +13,30 @@ services:
     stdin_open: true
     tty: true
   redis.dev:
-     image: redis
-     restart: on-failure
-     container_name: redis.dev
+    image: redis
+    restart: on-failure
+    container_name: redis.dev
+  zookeeper.dev:
+    image: wurstmeister/zookeeper:latest
+    container_name: zookeeper.dev
+    ports:
+      - "2181:2181"
+  kafka.dev:
+    image: wurstmeister/kafka:latest
+    restart: on-failure
+    ports:
+      - "9092:9092"
+    container_name: kafka.dev
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper.dev:2181
+      KAFKA_LISTENERS:
+        "INTERNAL://kafka.dev:9090,
+         EXTERNAL://:9092"
+      KAFKA_ADVERTISED_LISTENERS:
+        "INTERNAL://kafka.dev:9090,
+         EXTERNAL://dockervm:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP:
+        "INTERNAL:PLAINTEXT,
+         EXTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL 
      
