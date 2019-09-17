@@ -34,8 +34,8 @@
   source = "git@github.com:go-redis/redis.git"
 
 [[constraint]]
-  name= "github.com/segmentio/kafka-go"
-  version = "0.2.5"
+  name = "gopkg.in/confluentinc/confluent-kafka-go.v1"
+  version = "1.1.0"
 
 [prune]
   go-tests = true

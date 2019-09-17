@@ -23,7 +23,16 @@
   ]
   pruneopts = "UT"
   revision = "c5c4ad6a4cae24f3867af1a0513709fc944a87f3"
+  source = "git@github.com:go-redis/redis.git"
   version = "v6.15.4"
+
+[[projects]]
+  digest = "1:9169e569b3e6517da7de4476059f8fa889d508007e53fa5fc6a2ea4ffc5ae199"
+  name = "gopkg.in/confluentinc/confluent-kafka-go.v1"
+  packages = ["kafka"]
+  pruneopts = "UT"
+  revision = "48acc03b9ddd85b5c8c268b480d5a9a3d523b9ad"
+  version = "v1.1.0"
 
 [solve-meta]
   analyzer-name = "dep"
@@ -31,6 +40,7 @@
   input-imports = [
     "github.com/BurntSushi/toml",
     "github.com/go-redis/redis",
+    "gopkg.in/confluentinc/confluent-kafka-go.v1/kafka",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
