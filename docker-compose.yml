@@ -24,6 +24,8 @@ services:
   kafka.dev:
     image: wurstmeister/kafka:latest
     restart: on-failure
+    volumes:
+      - "./data/kafka:/kafka"
     ports:
       - "9092:9092"
     container_name: kafka.dev

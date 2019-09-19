@@ -62,7 +62,7 @@ func (kq *KafkaQueue) Enqueue(msg iface.IMessage) bool {
 			util.WriteLog(fmt.Sprintln("kafka produce failed, err:", deliverMsg.TopicPartition.Error.Error()))
 			return false
 		}
-	case <-time.Tick(2 * time.Second):
+	case <-time.Tick(kq.timeout):
 		util.WriteLog(fmt.Sprintln("kafka produce time-out"))
 		return false
 	}
@@ -99,13 +99,23 @@ func (kq *KafkaQueue) Size() int64 {
 }
 
 func (kq *KafkaQueue) Debug() {
-	c, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers":  kq.server,
-		"group.id":           kq.group,
-		"auto.offset.reset":  "beginning",
-		"session.timeout.ms": 6000,
+	c, _ := kafka.NewConsumer(&kafka.ConfigMap{
+		"bootstrap.servers":      kq.server,
+		"group.id":               kq.group,
+		"auto.offset.reset":      "earliest",
+		"statistics.interval.ms": 5000,
 	})
-	admin, _ := kafka.NewAdminClientFromConsumer(c)
-	metaData, err := admin.GetMetadata(&kq.topic, false, 1000)
-	util.WriteLog(fmt.Sprintln(metaData, err))
+	defer c.Close()
+	// low, high, err := c.QueryWatermarkOffsets(kq.topic, 0, int(time.Second))
+	// util.WriteLog(fmt.Sprintf("low: %d, high: %d, err: %s", low, high, err.Error()))
+	committedOffsets, err := c.Committed([]kafka.TopicPartition{{
+		Topic:     &kq.topic,
+		Partition: int32(0),
+	}}, int(3*time.Second))
+	if err != nil {
+		util.WriteLog(fmt.Sprintln(err.Error()))
+	}
+	for _, info := range committedOffsets {
+		util.WriteLog(fmt.Sprintln("partition:", info.Partition, "offset", info.Offset, "metaData:", info.Metadata))
+	}
 }
