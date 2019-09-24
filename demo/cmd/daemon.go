@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 	"queue-task/demo/task"
 	"queue-task/v1/conf"
+	coretask "queue-task/v1/task"
 	"queue-task/v1/util"
 	"sync"
 	"time"
@@ -16,10 +17,11 @@ func main() {
 	conf.Init(confPath)
 	handleCreateFunc()
 	// 测试任务启动，运行
-	for _, function := range util.CreateFuncList {
-		job := function()
-		job.Work()
-	}
+	coretask.Work()
+	// for _, function := range util.CreateFuncList {
+	// 	job := function()
+	// 	job.Work()
+	// }
 	// 测试消息发送
 	task.TestSendMsg()
 	time.Sleep(5 * time.Second)
@@ -30,6 +32,6 @@ func main() {
 
 func handleCreateFunc() {
 	once.Do(func() {
-		util.AddCreateFunc("test", task.CreateTestJob())
+		coretask.AddCreateFunc("test", task.CreateTestJob())
 	})
 }

@@ -6,4 +6,5 @@ RUN cd /opt \
     && cd librdkafka \
     && ./configure --prefix /usr \
     && make \
-    && make install
+    && make install \
+    && rm -rf /opt/librdkafka

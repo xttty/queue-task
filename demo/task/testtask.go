@@ -8,12 +8,13 @@ import (
 	"queue-task/v1/job"
 	"queue-task/v1/msg"
 	"queue-task/v1/queue"
+	coretask "queue-task/v1/task"
 	"queue-task/v1/util"
 	"time"
 )
 
 // CreateTestJob 新建测试队列任务
-func CreateTestJob() util.CreateJobFunc {
+func CreateTestJob() coretask.CreateJobFunc {
 	return func() iface.IJob {
 		// 初始化一个队列
 		queueConf := conf.Config.Queue.Redis["test"]

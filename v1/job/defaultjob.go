@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"queue-task/v1/conf"
 	"queue-task/v1/iface"
+	"queue-task/v1/task"
 	"queue-task/v1/util"
 	"time"
 )
@@ -38,7 +39,7 @@ func (job *DefaultJob) Send(msg iface.IMessage) {
 // Work 消费消息
 func (job *DefaultJob) Work() {
 	if !job.IsWorking {
-		util.AddJob(job.name, job)
+		task.AddJob(job.name, job)
 		job.IsWorking = true
 		// 新建channel 因为job是关闭状态
 		for i := 0; i < job.workersCnt; i++ {

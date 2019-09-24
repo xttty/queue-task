@@ -1,6 +1,8 @@
 package queue_test
 
 import (
+	"encoding/json"
+	"queue-task/v1/msg"
 	"queue-task/v1/queue"
 	"queue-task/v1/util"
 	"testing"
@@ -12,22 +14,21 @@ func TestKafka(t *testing.T) {
 		t.Log(str)
 	})
 	// 不知道为何消费kafka需要4秒，不然就会timeout
-	kafkaQ, err := queue.NewKafkaQueue("kafka.dev:9090", "test-consumer-group", "xty-debug", 4*time.Second)
+	kafkaQ, err := queue.NewKafkaQueue("dockervm:9092", "test-consumer-group", "xty", 4*time.Second, 2)
 	if err != nil {
 		t.Log(err)
 		return
 	}
-	// message := &msg.BaseMsg{
-	// 	Data: msg.H{
-	// 		"string": "hello queue task",
-	// 	},
-	// }
-	// ok := kafkaQ.Enqueue(message)
-	// t.Log("enqueue result", ok)
-	// time.Sleep(time.Second)
-	kafkaQ.Debug()
-	// data, ok := kafkaQ.Dequeue()
-	// deMsg := msg.BaseMsg{}
-	// json.Unmarshal(data, &deMsg)
-	// t.Log("dequeue result:", deMsg, ok)
+	message := &msg.BaseMsg{
+		Data: msg.H{
+			"string": "hello queue task",
+		},
+	}
+	ok := kafkaQ.Enqueue(message)
+	t.Log("enqueue result", ok)
+	time.Sleep(time.Second)
+	data, ok := kafkaQ.Dequeue()
+	deMsg := msg.BaseMsg{}
+	json.Unmarshal(data, &deMsg)
+	t.Log("dequeue result:", deMsg, ok)
 }

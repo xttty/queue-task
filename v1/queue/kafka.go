@@ -11,18 +11,20 @@ import (
 
 // KafkaQueue kafka队列
 type KafkaQueue struct {
-	server  string
-	group   string
-	topic   string
-	timeout time.Duration
+	server       string
+	group        string
+	topic        string
+	partitionCnt int
+	timeout      time.Duration
 }
 
 // NewKafkaQueue 新建kafka队列实例
-func NewKafkaQueue(server, group, topic string, timeout time.Duration) (*KafkaQueue, error) {
+func NewKafkaQueue(server, group, topic string, timeout time.Duration, partitionCnt int) (*KafkaQueue, error) {
 	kq := &KafkaQueue{}
 	kq.server = server
 	kq.group = group
 	kq.topic = topic
+	kq.partitionCnt = partitionCnt
 	if timeout <= 0 {
 		timeout = -1
 	}
@@ -95,27 +97,25 @@ func (kq *KafkaQueue) Dequeue() ([]byte, bool) {
 
 // Size 消息lag量
 func (kq *KafkaQueue) Size() int64 {
-	return int64(-1)
-}
-
-func (kq *KafkaQueue) Debug() {
-	c, _ := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers":      kq.server,
-		"group.id":               kq.group,
-		"auto.offset.reset":      "earliest",
-		"statistics.interval.ms": 5000,
+	c, err := kafka.NewConsumer(&kafka.ConfigMap{
+		"bootstrap.servers": kq.server,
+		"group.id":          kq.group,
+		"auto.offset.reset": "earliest",
 	})
-	defer c.Close()
-	// low, high, err := c.QueryWatermarkOffsets(kq.topic, 0, int(time.Second))
-	// util.WriteLog(fmt.Sprintf("low: %d, high: %d, err: %s", low, high, err.Error()))
-	committedOffsets, err := c.Committed([]kafka.TopicPartition{{
-		Topic:     &kq.topic,
-		Partition: int32(0),
-	}}, int(3*time.Second))
 	if err != nil {
-		util.WriteLog(fmt.Sprintln(err.Error()))
+		util.WriteLog(fmt.Sprintln("get kafka size failed, err:", err.Error()))
+		return -1
 	}
-	for _, info := range committedOffsets {
-		util.WriteLog(fmt.Sprintln("partition:", info.Partition, "offset", info.Offset, "metaData:", info.Metadata))
+	defer c.Close()
+
+	var offsetCnt int64
+	for i := 0; i < kq.partitionCnt; i++ {
+		low, high, err := c.QueryWatermarkOffsets(kq.topic, int32(i), int(kq.timeout))
+		if err != nil {
+			util.WriteLog(fmt.Sprintf("get kafka topic:%s, partition:%d offset failed, err: %s", kq.topic, i, err.Error()))
+			continue
+		}
+		offsetCnt += high - low
 	}
+	return offsetCnt
 }

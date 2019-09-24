@@ -1,12 +1,12 @@
-package util
+package task
 
 import "queue-task/v1/iface"
 
 // CreateJobFunc 新建job方法
 type CreateJobFunc func() iface.IJob
 
-// JobList 任务表
-var JobList = map[string]iface.IJob{}
+// jobList 任务表
+var jobList = map[string]iface.IJob{}
 
 // CreateFuncList job创建方法列表
 var CreateFuncList = map[string]CreateJobFunc{}
@@ -23,10 +23,31 @@ func DelCreateFunc(key string) {
 
 // AddJob 添加任务
 func AddJob(key string, job iface.IJob) {
-	JobList[key] = job
+	jobList[key] = job
 }
 
 // DelJob 将job从list中删除
 func DelJob(key string) {
-	delete(JobList, key)
+	delete(jobList, key)
+}
+
+// Work 任务启动
+func Work() {
+	for _, createFunc := range CreateFuncList {
+		job := createFunc()
+		job.Work()
+	}
+}
+
+// Stop 任务停止
+func Stop() {
+	for _, job := range jobList {
+		job.Stop()
+	}
+}
+
+// Restart 重启
+func Restart() {
+	Stop()
+	Work()
 }
