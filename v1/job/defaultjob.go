@@ -9,12 +9,28 @@ import (
 	"time"
 )
 
+// BeforeSendFunc 发送消息前的处理函数
+type BeforeSendFunc func()
+
+// AfterSendFunc 发送消息后的处理函数
+type AfterSendFunc func()
+
+// BeforeConsumeFunc 消费数据前的处理函数
+type BeforeConsumeFunc func()
+
+// AfterConsumeFunc 消费数据后的处理函数
+type AfterConsumeFunc func()
+
 // DefaultJob 默认任务
 type DefaultJob struct {
 	*BaseJob
-	workersCnt int
-	exit       []chan bool
-	IsWorking  bool
+	workersCnt            int
+	exit                  []chan bool
+	IsWorking             bool
+	beforeSendCallback    BeforeSendFunc
+	afterSendCallback     AfterSendFunc
+	beforeConsumeCallback BeforeConsumeFunc
+	afterConsumeCallback  AfterConsumeFunc
 }
 
 // NewDefaultJob default任务构造器
@@ -29,10 +45,16 @@ func NewDefaultJob(name string, queue iface.IQueue, conf *conf.DefaultJobConf) *
 
 // Send 发送消息
 func (job *DefaultJob) Send(msg iface.IMessage) {
+	if job.beforeSendCallback != nil {
+		job.beforeSendCallback()
+	}
 	ok := job.queue.Enqueue(msg)
 	if !ok {
 		// write log
 		util.WriteLog("send occurred error")
+	}
+	if job.afterSendCallback != nil {
+		job.afterSendCallback()
 	}
 }
 
@@ -79,7 +101,13 @@ func (job *DefaultJob) startWorker(id int, f iface.JobHandle) {
 		case <-job.exit[id]:
 			return
 		default:
+			if job.beforeConsumeCallback != nil {
+				job.beforeConsumeCallback()
+			}
 			data, ok := job.queue.Dequeue()
+			if job.afterConsumeCallback != nil {
+				job.afterConsumeCallback()
+			}
 			if ok {
 				f(data)
 				timeRest = 100 * time.Microsecond
@@ -89,4 +117,24 @@ func (job *DefaultJob) startWorker(id int, f iface.JobHandle) {
 		}
 		time.Sleep(timeRest)
 	}
+}
+
+// RegisterBeforeSendFunc 注册发送消息前处理函数
+func (job *DefaultJob) RegisterBeforeSendFunc(f BeforeSendFunc) {
+	job.beforeSendCallback = f
+}
+
+// RegisterAfterSendFunc 注册发送消息后处理函数
+func (job *DefaultJob) RegisterAfterSendFunc(f AfterSendFunc) {
+	job.afterSendCallback = f
+}
+
+// RegisterBeforeConsumeFunc 注册任务处理前回调函数
+func (job *DefaultJob) RegisterBeforeConsumeFunc(f BeforeConsumeFunc) {
+	job.beforeConsumeCallback = f
+}
+
+// RegisterAfterConsumeFunc 注册任务处理后回调函数
+func (job *DefaultJob) RegisterAfterConsumeFunc(f AfterConsumeFunc) {
+	job.afterConsumeCallback = f
 }
