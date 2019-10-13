@@ -5,7 +5,6 @@ package job
 
 import (
 	"queue-task/v1/iface"
-	"queue-task/v1/task"
 )
 
 // BaseJob 基础job
@@ -30,7 +29,6 @@ func (job *BaseJob) Send(msg iface.IMessage) {
 
 // Work 分配任务
 func (job *BaseJob) Work() {
-	task.AddJob(job.name, job)
 }
 
 // GetJobName 获得任务名
@@ -50,7 +48,6 @@ func (job *BaseJob) NeedStop() bool {
 
 // Stop 停止job
 func (job *BaseJob) Stop() {
-	task.DelJob(job.name)
 }
 
 // RegisterHandleFunc 注册业务处理方法

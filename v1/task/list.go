@@ -35,6 +35,7 @@ func DelJob(key string) {
 func Work() {
 	for _, createFunc := range CreateFuncList {
 		job := createFunc()
+		AddJob(job.GetJobName(), job)
 		job.Work()
 	}
 }
@@ -43,6 +44,7 @@ func Work() {
 func Stop() {
 	for _, job := range jobList {
 		job.Stop()
+		DelJob(job.GetJobName())
 	}
 }
 

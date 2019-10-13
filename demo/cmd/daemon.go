@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"path/filepath"
 	"queue-task/demo/task"
 	"queue-task/v1/conf"
@@ -16,18 +17,16 @@ func main() {
 	confPath, _ := filepath.Abs("../conf")
 	conf.Init(confPath)
 	handleCreateFunc()
+	util.RegisterLogHandle(func(s string) {
+		fmt.Println(s)
+	})
 	// 测试任务启动，运行
 	coretask.Work()
-	// for _, function := range util.CreateFuncList {
-	// 	job := function()
-	// 	job.Work()
-	// }
 	// 测试消息发送
 	task.TestSendMsg()
 	time.Sleep(5 * time.Second)
-	for _, job := range util.JobList {
-		job.Stop()
-	}
+	coretask.Stop()
+	time.Sleep(time.Second)
 }
 
 func handleCreateFunc() {

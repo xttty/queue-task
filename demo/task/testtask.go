@@ -23,8 +23,34 @@ func CreateTestJob() coretask.CreateJobFunc {
 		j := job.NewDefaultJob("test", q, &conf.Config.Job.Default)
 		// 注册业务回调方法
 		j.RegisterHandleFunc(TestPerform)
+		j.RegisterSendMidware(test1SendMidware, test2SendMidware)
+		j.RegisterWorkMidware(test1WorkMidware, test2WorkMidware)
 		return j
 	}
+}
+
+func test1WorkMidware(j *job.DefaultJob, data []byte, idx int) {
+	fmt.Println("work midware 1 begin")
+	j.WorkNext(data, idx+1)
+	fmt.Println("work midware 1 stop")
+}
+
+func test2WorkMidware(j *job.DefaultJob, data []byte, idx int) {
+	fmt.Println("work midware 2 begin")
+	j.WorkNext(data, idx+1)
+	fmt.Println("work midware 2 stop")
+}
+
+func test1SendMidware(j *job.DefaultJob, msg iface.IMessage, idx int) {
+	fmt.Println("send midware 1 being")
+	j.SendNext(msg, idx+1)
+	fmt.Println("send midware 1 stop")
+}
+
+func test2SendMidware(j *job.DefaultJob, msg iface.IMessage, idx int) {
+	fmt.Println("send midware 2 being")
+	j.SendNext(msg, idx+1)
+	fmt.Println("send midware 2 stop")
 }
 
 // TestPerform 测试业务代码
@@ -43,7 +69,7 @@ func TestPerform(data []byte) {
 func TestSendMsg() {
 	createFunc := CreateTestJob()
 	testJob := createFunc()
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 1; i++ {
 		message := &msg.BaseMsg{
 			Data: msg.H{
 				"date": time.Now().Second(),
