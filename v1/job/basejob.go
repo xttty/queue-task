@@ -41,8 +41,8 @@ func (job *BaseJob) GetQueue() iface.IQueue {
 	return job.queue
 }
 
-// NeedStop 是否需要停止
-func (job *BaseJob) NeedStop() bool {
+// IsWorking 是否需要停止
+func (job *BaseJob) IsWorking() bool {
 	return false
 }
 

@@ -72,6 +72,11 @@ func (job *DefaultJob) Work() {
 	job.rwLock.RUnlock()
 }
 
+// IsWorking 任务是否在运行
+func (job *DefaultJob) IsWorking() bool {
+	return job.isWorking
+}
+
 // Stop 停止消费
 func (job *DefaultJob) Stop() {
 	// 并发控制

@@ -1,6 +1,9 @@
 package task
 
-import "queue-task/v1/iface"
+import (
+	"queue-task/v1/iface"
+	"time"
+)
 
 // CreateJobFunc 新建job方法
 type CreateJobFunc func() iface.IJob
@@ -46,6 +49,9 @@ func Stop() {
 		job.Stop()
 		DelJob(job.GetJobName())
 	}
+	// TODO 有必要使用sync.waitGroup或者exit channel 来控制退出吗？
+	// 等待1S让任务协程有退出的时间
+	time.Sleep(1 * time.Second)
 }
 
 // Restart 重启
