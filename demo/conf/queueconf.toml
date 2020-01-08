@@ -1,5 +1,0 @@
-[kaproxy]
-
-[redis]
-    [redis.test]
-    addr = "redis.dev:6379"

@@ -14,3 +14,6 @@ type IJob interface {
 
 // JobHandle 业务处理方法
 type JobHandle func([]byte)
+
+// SendHandle send函数
+type SendHandle func(msg IMessage)

@@ -3,7 +3,6 @@ package task
 import (
 	"encoding/json"
 	"fmt"
-	"queue-task/v1/conf"
 	"queue-task/v1/iface"
 	"queue-task/v1/job"
 	"queue-task/v1/msg"
@@ -17,40 +16,16 @@ import (
 func CreateTestJob() coretask.CreateJobFunc {
 	return func() iface.IJob {
 		// 初始化一个队列
-		queueConf := conf.Config.Queue.Redis["test"]
-		q := queue.NewRedisQueue(&queueConf, TestRedisJobKey)
+		q := queue.NewRedisQueue(&queue.RedisQueueOptions{
+			Addr: "redis.dev:6379",
+			Key:  "debug",
+		})
 		// 生成job
-		j := job.NewDefaultJob("test", q, &conf.Config.Job.Default)
+		j := job.NewDefaultJob("test", q, 10)
 		// 注册业务回调方法
 		j.RegisterHandleFunc(TestPerform)
-		j.RegisterSendMidware(test1SendMidware, test2SendMidware)
-		j.RegisterWorkMidware(test1WorkMidware, test2WorkMidware)
 		return j
 	}
-}
-
-func test1WorkMidware(j *job.DefaultJob, data []byte, idx int) {
-	fmt.Println("work midware 1 begin")
-	j.WorkNext(data, idx+1)
-	fmt.Println("work midware 1 stop")
-}
-
-func test2WorkMidware(j *job.DefaultJob, data []byte, idx int) {
-	fmt.Println("work midware 2 begin")
-	j.WorkNext(data, idx+1)
-	fmt.Println("work midware 2 stop")
-}
-
-func test1SendMidware(j *job.DefaultJob, msg iface.IMessage, idx int) {
-	fmt.Println("send midware 1 being")
-	j.SendNext(msg, idx+1)
-	fmt.Println("send midware 1 stop")
-}
-
-func test2SendMidware(j *job.DefaultJob, msg iface.IMessage, idx int) {
-	fmt.Println("send midware 2 being")
-	j.SendNext(msg, idx+1)
-	fmt.Println("send midware 2 stop")
 }
 
 // TestPerform 测试业务代码
@@ -66,6 +41,7 @@ func TestPerform(data []byte) {
 	}
 }
 
+// TestSendMsg test
 func TestSendMsg() {
 	createFunc := CreateTestJob()
 	testJob := createFunc()

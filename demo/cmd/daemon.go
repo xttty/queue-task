@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"path/filepath"
 	"queue-task/demo/task"
-	"queue-task/v1/conf"
 	coretask "queue-task/v1/task"
 	"queue-task/v1/util"
 	"sync"
@@ -14,8 +12,6 @@ import (
 var once sync.Once
 
 func main() {
-	confPath, _ := filepath.Abs("../conf")
-	conf.Init(confPath)
 	handleCreateFunc()
 	util.RegisterLogHandle(func(s string) {
 		fmt.Println(s)

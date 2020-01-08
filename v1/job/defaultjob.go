@@ -3,7 +3,6 @@ package job
 import (
 	"context"
 	"fmt"
-	"queue-task/v1/conf"
 	"queue-task/v1/iface"
 	"queue-task/v1/util"
 	"sync"
@@ -15,26 +14,35 @@ import (
 type DefaultJob struct {
 	*BaseJob
 	workersCnt     int
-	IsWorking      bool
+	isWorking      bool
 	ctxCancel      context.CancelFunc
 	childCtxCancel []context.CancelFunc
 	rwLock         *sync.RWMutex
 	workInt        WorkInterceptor
+	sendInt        SendInterceptor
 }
 
 // NewDefaultJob default任务构造器
-func NewDefaultJob(name string, queue iface.IQueue, conf *conf.DefaultJobConf) *DefaultJob {
+func NewDefaultJob(name string, queue iface.IQueue, workCnt int) *DefaultJob {
 	job := &DefaultJob{
 		BaseJob:    NewBaseJob(name, queue),
-		workersCnt: conf.WorkersCnt,
+		workersCnt: workCnt,
 		rwLock:     new(sync.RWMutex),
-		IsWorking:  false,
+		isWorking:  false,
 	}
 	return job
 }
 
 // Send 发送消息
 func (job *DefaultJob) Send(msg iface.IMessage) {
+	if job.sendInt == nil {
+		job.doSend(msg)
+	} else {
+		job.sendInt(msg, job.doSend)
+	}
+}
+
+func (job *DefaultJob) doSend(msg iface.IMessage) {
 	ok := job.queue.Enqueue(msg)
 	if !ok {
 		// write log
@@ -46,7 +54,7 @@ func (job *DefaultJob) Send(msg iface.IMessage) {
 func (job *DefaultJob) Work() {
 	// 并发控制
 	job.rwLock.RLock()
-	if !job.IsWorking {
+	if !job.isWorking {
 		job.rwLock.RUnlock()
 		job.rwLock.Lock()
 		var jobCtx context.Context
@@ -57,7 +65,7 @@ func (job *DefaultJob) Work() {
 			childCtx, job.childCtxCancel[i] = context.WithCancel(jobCtx)
 			go job.startWorker(childCtx, i)
 		}
-		job.IsWorking = true
+		job.isWorking = true
 		job.rwLock.Unlock()
 		return
 	}
@@ -68,7 +76,7 @@ func (job *DefaultJob) Work() {
 func (job *DefaultJob) Stop() {
 	// 并发控制
 	job.rwLock.RLock()
-	if !job.IsWorking {
+	if !job.isWorking {
 		job.rwLock.RUnlock()
 		return
 	}
@@ -79,7 +87,7 @@ func (job *DefaultJob) Stop() {
 	// 基础任务也执行stop
 	job.BaseJob.Stop()
 	// 标记运行状态为结束
-	job.IsWorking = false
+	job.isWorking = false
 	util.WriteLog(fmt.Sprintf("job[%s] is stopped", job.GetJobName()))
 	job.rwLock.Unlock()
 }
@@ -115,7 +123,6 @@ func (job *DefaultJob) startWorker(ctx context.Context, id int) {
 		default:
 			data, ok := job.queue.Dequeue()
 			if ok {
-				// TODO add midware
 				if job.workInt == nil {
 					job.handleFunc(data)
 				} else {
@@ -130,7 +137,12 @@ func (job *DefaultJob) startWorker(ctx context.Context, id int) {
 	}
 }
 
-// WorkInterceptor 注册work中间件
+// WorkInterceptor 注册work拦截器
 func (job *DefaultJob) WorkInterceptor(workInt WorkInterceptor) {
 	job.workInt = workInt
+}
+
+// SendInterceptor 注册send拦截器
+func (job *DefaultJob) SendInterceptor(sendInt SendInterceptor) {
+	job.sendInt = sendInt
 }

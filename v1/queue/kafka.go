@@ -18,13 +18,23 @@ type KafkaQueue struct {
 	timeout      time.Duration
 }
 
+// KafkaQueueOptions kafka队列配置
+type KafkaQueueOptions struct {
+	Server       string
+	Group        string
+	Topic        string
+	Timeout      time.Duration
+	PartitionCnt int
+}
+
 // NewKafkaQueue 新建kafka队列实例
-func NewKafkaQueue(server, group, topic string, timeout time.Duration, partitionCnt int) (*KafkaQueue, error) {
+func NewKafkaQueue(opt *KafkaQueueOptions) (*KafkaQueue, error) {
 	kq := &KafkaQueue{}
-	kq.server = server
-	kq.group = group
-	kq.topic = topic
-	kq.partitionCnt = partitionCnt
+	kq.server = opt.Server
+	kq.group = opt.Group
+	kq.topic = opt.Topic
+	kq.partitionCnt = opt.PartitionCnt
+	timeout := opt.Timeout
 	if timeout <= 0 {
 		timeout = -1
 	}

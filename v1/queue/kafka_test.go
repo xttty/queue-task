@@ -14,7 +14,8 @@ func TestKafka(t *testing.T) {
 		t.Log(str)
 	})
 	// 不知道为何消费kafka需要4秒，不然就会timeout
-	kafkaQ, err := queue.NewKafkaQueue("dockervm:9092", "test-consumer-group", "xty", 4*time.Second, 2)
+	// kafkaQ, err := queue.NewKafkaQueue("dockervm:9092", "test-consumer-group", "xty", 4*time.Second, 2)
+	kafkaQ, err := queue.NewKafkaQueue(&queue.KafkaQueueOptions{})
 	if err != nil {
 		t.Log(err)
 		return
