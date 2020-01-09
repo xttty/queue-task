@@ -2,13 +2,14 @@ package job
 
 import "queue-task/v1/iface"
 
-// WorkInterceptor  job运行中间件
+// WorkInterceptor  job运行拦截器
 // 拦截器一般用于数据统计、日志等
-// 拦截器需要显示调用 handle(value) 来继续业务处理流程
+// 拦截器需要显式调用 handle(value) 来继续业务处理流程
 // handle可以在拦截器代码的任何位置以此来控制拦截器逻辑相对于业务处理的位置
 type WorkInterceptor func(value []byte, handle iface.JobHandle)
 
 // SendInterceptor  发送拦截器
+// 发送拦截器用法和job运行拦截器一样
 type SendInterceptor func(msg iface.IMessage, handle iface.SendHandle)
 
 // ChainWorkInterceptor 链式work拦截器生成组件
