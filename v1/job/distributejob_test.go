@@ -27,7 +27,7 @@ func TestDistributeJob(t *testing.T) {
 	handleFunc := func(data []byte) {
 		t.Log(data)
 	}
-	job := job.NewDistributeJob("debug", q, job.SetCircleTime(5*time.Second), job.SetWorkCntFunc(cntFunc))
+	job := job.NewDistributeJob("debug", q, job.SetCircleTime(5*time.Second), job.SetWorkerStrategy(cntFunc))
 	job.RegisterHandleFunc(handleFunc)
 	job.Work()
 	for i := 0; i < 10; i++ {

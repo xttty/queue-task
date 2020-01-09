@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-// CurrentWorkerCntFunc 获取当前worker数方法
-type CurrentWorkerCntFunc func() int
+// WorkerStrategyFunc worker分配策略方法
+type WorkerStrategyFunc func() int
 
 // DistributedJobOption  分布式任务设置方法
 type DistributedJobOption func(*DistributedJob) *DistributedJob
@@ -16,26 +16,26 @@ type DistributedJobOption func(*DistributedJob) *DistributedJob
 // 在分布式环境下依然能保持正常并发的任务执行
 type DistributedJob struct {
 	*DefaultJob
-	circleTime   time.Duration
-	getWorkerCnt CurrentWorkerCntFunc
-	exitCh       chan struct{}
-	rwLock       sync.RWMutex
-	isWorking    bool
+	circleTime     time.Duration
+	workerStrategy WorkerStrategyFunc
+	exitCh         chan struct{}
+	rwLock         sync.RWMutex
+	isWorking      bool
 }
 
 var defaultCircleTime = 60 * time.Second
-var defaultGetWorkerCnt = func() int {
+var defaultWorkerStrategy = func() int {
 	return 0
 }
 
 // NewDistributeJob 新建一个分布式任务
 func NewDistributeJob(name string, q iface.IQueue, options ...DistributedJobOption) *DistributedJob {
 	job := &DistributedJob{
-		DefaultJob:   NewDefaultJob(name, q, 0),
-		circleTime:   defaultCircleTime,
-		getWorkerCnt: defaultGetWorkerCnt,
-		exitCh:       make(chan struct{}, 0),
-		isWorking:    false,
+		DefaultJob:     NewDefaultJob(name, q, 0),
+		circleTime:     defaultCircleTime,
+		workerStrategy: defaultWorkerStrategy,
+		exitCh:         make(chan struct{}, 0),
+		isWorking:      false,
 	}
 	for i := 0; i < len(options); i++ {
 		job = options[i](job)
@@ -53,11 +53,11 @@ func SetCircleTime(t time.Duration) DistributedJobOption {
 	}
 }
 
-// SetWorkCntFunc 设置并发控制函数
-func SetWorkCntFunc(f CurrentWorkerCntFunc) DistributedJobOption {
+// SetWorkerStrategy 设置worker控制策略
+func SetWorkerStrategy(f WorkerStrategyFunc) DistributedJobOption {
 	return func(job *DistributedJob) *DistributedJob {
 		if f != nil {
-			job.getWorkerCnt = f
+			job.workerStrategy = f
 		}
 		return job
 	}
@@ -81,7 +81,7 @@ func (job *DistributedJob) Work() {
 		for {
 			select {
 			case <-time.Tick(job.circleTime):
-				cnt := job.getWorkerCnt()
+				cnt := job.workerStrategy()
 				if cnt < 0 {
 					cnt = 0
 				}
