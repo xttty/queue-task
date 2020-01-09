@@ -53,7 +53,7 @@ func (kq *KafkaQueue) Enqueue(msg iface.IMessage) bool {
 	}
 	defer p.Close()
 
-	data, err := msg.ToJSON()
+	data, err := msg.Serialize()
 	if err != nil {
 		util.WriteLog(fmt.Sprintln("message to json failed, err:", err.Error()))
 		return false

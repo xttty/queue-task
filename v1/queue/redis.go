@@ -37,7 +37,7 @@ func NewRedisQueue(opt *RedisQueueOptions) *RedisQueue {
 
 // Enqueue 实现iqueue接口的写入方法
 func (rq *RedisQueue) Enqueue(msg iface.IMessage) bool {
-	data, err := msg.ToJSON()
+	data, err := msg.Serialize()
 	if err != nil {
 		util.WriteLog(err.Error())
 		return false

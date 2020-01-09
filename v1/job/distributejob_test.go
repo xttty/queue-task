@@ -1,14 +1,24 @@
 package job_test
 
 import (
+	"encoding/json"
 	"math/rand"
 	"queue-task/v1/job"
-	"queue-task/v1/msg"
 	"queue-task/v1/queue"
 	"queue-task/v1/util"
 	"testing"
 	"time"
 )
+
+type TestMsg struct {
+	Key  string
+	Time string
+}
+
+func (msg *TestMsg) Serialize() ([]byte, error) {
+	data, err := json.Marshal(*msg)
+	return data, err
+}
 
 func TestDistributeJob(t *testing.T) {
 	util.RegisterLogHandle(func(s string) {
@@ -25,16 +35,17 @@ func TestDistributeJob(t *testing.T) {
 		return cnt
 	}
 	handleFunc := func(data []byte) {
-		t.Log(data)
+		message := &TestMsg{}
+		json.Unmarshal(data, message)
+		t.Log(*message)
 	}
 	job := job.NewDistributeJob("debug", q, job.SetCircleTime(5*time.Second), job.SetWorkerStrategy(cntFunc))
 	job.RegisterHandleFunc(handleFunc)
 	job.Work()
 	for i := 0; i < 10; i++ {
-		job.Send(&msg.BaseMsg{
-			Data: msg.H{
-				"test": time.Now(),
-			},
+		job.Send(&TestMsg{
+			Key:  "debug",
+			Time: time.Now().String(),
 		})
 	}
 	time.Sleep(30 * time.Second)

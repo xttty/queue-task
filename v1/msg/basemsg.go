@@ -20,8 +20,8 @@ type BaseMsg struct {
 // 	}
 type H map[string]interface{}
 
-// ToJSON 实现的消息接口
-func (msg *BaseMsg) ToJSON() ([]byte, error) {
+// Serialize 实现的消息接口
+func (msg *BaseMsg) Serialize() ([]byte, error) {
 	v, err := json.Marshal(msg)
 	return v, err
 }
