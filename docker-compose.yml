@@ -2,7 +2,7 @@ version: "3"
 
 services:
   golang.dev:
-    image: xttty/golang_librdkafka:v1
+    build: ./
     container_name: go.dev
     restart: always
     volumes:
