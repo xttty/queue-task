@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"queue-task/demo/task"
+	"queue-task/examples/task"
 	coretask "queue-task/v1/task"
 	"queue-task/v1/util"
 	"sync"

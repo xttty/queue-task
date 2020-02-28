@@ -39,7 +39,7 @@ func TestDistributeJob(t *testing.T) {
 		json.Unmarshal(data, message)
 		t.Log(*message)
 	}
-	job := job.NewDistributeJob("debug", q, job.SetCircleTime(5*time.Second), job.SetWorkerStrategy(cntFunc))
+	job := job.NewDistributedJob("debug", q, job.SetCircleTime(5*time.Second), job.SetWorkerStrategy(cntFunc))
 	job.RegisterHandleFunc(handleFunc)
 	job.Work()
 	for i := 0; i < 10; i++ {

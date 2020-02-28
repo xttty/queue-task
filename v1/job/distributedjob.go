@@ -28,8 +28,8 @@ var defaultWorkerStrategy = func() int {
 	return 0
 }
 
-// NewDistributeJob 新建一个分布式任务
-func NewDistributeJob(name string, q iface.IQueue, options ...DistributedJobOption) *DistributedJob {
+// NewDistributedJob 新建一个分布式任务
+func NewDistributedJob(name string, q iface.IQueue, options ...DistributedJobOption) *DistributedJob {
 	job := &DistributedJob{
 		DefaultJob:     NewDefaultJob(name, q, 0),
 		circleTime:     defaultCircleTime,

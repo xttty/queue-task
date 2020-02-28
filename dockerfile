@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang:1.14
 
 # 安装librdkafka
 RUN cd /opt \
