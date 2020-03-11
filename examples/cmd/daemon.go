@@ -28,5 +28,7 @@ func main() {
 func handleCreateFunc() {
 	once.Do(func() {
 		coretask.AddCreateFunc("test", task.CreateTestJob())
+		coretask.AddCreateFunc("distr", task.CreateDistrJob())
+		coretask.AddCreateFunc("int job", task.CreateIntJob())
 	})
 }
