@@ -54,9 +54,9 @@ func (job *DefaultJob) doSend(msg iface.IMessage) {
 func (job *DefaultJob) Work() {
 	// 并发控制
 	job.rwLock.RLock()
+	defer job.rwLock.Unlock()
+
 	if !job.isWorking {
-		job.rwLock.RUnlock()
-		job.rwLock.Lock()
 		var jobCtx context.Context
 		jobCtx, job.ctxCancel = context.WithCancel(context.Background())
 		job.childCtxCancel = make([]context.CancelFunc, job.workersCnt)
@@ -66,10 +66,8 @@ func (job *DefaultJob) Work() {
 			go job.startWorker(childCtx, i)
 		}
 		job.isWorking = true
-		job.rwLock.Unlock()
 		return
 	}
-	job.rwLock.RUnlock()
 }
 
 // IsWorking 任务是否在运行
@@ -80,13 +78,12 @@ func (job *DefaultJob) IsWorking() bool {
 // Stop 停止消费
 func (job *DefaultJob) Stop() {
 	// 并发控制
-	job.rwLock.RLock()
+	job.rwLock.Lock()
+	defer job.rwLock.Unlock()
+
 	if !job.isWorking {
-		job.rwLock.RUnlock()
 		return
 	}
-	job.rwLock.RUnlock()
-	job.rwLock.Lock()
 	// 通知子worker结束
 	job.ctxCancel()
 	// 基础任务也执行stop
@@ -94,7 +91,6 @@ func (job *DefaultJob) Stop() {
 	// 标记运行状态为结束
 	job.isWorking = false
 	util.WriteLog(fmt.Sprintf("job[%s] is stopped", job.GetJobName()))
-	job.rwLock.Unlock()
 }
 
 // ChangeWorkerCnt 改变并发数，并重启
