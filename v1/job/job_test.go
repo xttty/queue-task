@@ -1,8 +1,7 @@
-package job_test
+package job
 
 import (
 	"queue-task/v1/iface"
-	"queue-task/v1/job"
 	"queue-task/v1/msg"
 	"queue-task/v1/queue"
 	"testing"
@@ -39,9 +38,9 @@ func TestJob(t *testing.T) {
 		t.Log("print 4 after send handle")
 	}
 
-	testJob := job.NewDefaultJob("test", q, 10)
-	testJob.WorkInterceptor(job.ChainWorkInterceptor(print1WorkInterceptor, print2WorkInterceptor))
-	testJob.SendInterceptor(job.ChainSendInterceptor(print3SendInterceptor, print4SendInterceptor))
+	testJob := NewDefaultJob("test", q, 10)
+	testJob.WorkInterceptor(ChainWorkInterceptor(print1WorkInterceptor, print2WorkInterceptor))
+	testJob.SendInterceptor(ChainSendInterceptor(print3SendInterceptor, print4SendInterceptor))
 	testJob.RegisterHandleFunc(func(data []byte) {
 		t.Log(data)
 	})

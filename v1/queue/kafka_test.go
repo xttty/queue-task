@@ -1,9 +1,8 @@
-package queue_test
+package queue
 
 import (
 	"encoding/json"
 	"queue-task/v1/msg"
-	"queue-task/v1/queue"
 	"queue-task/v1/util"
 	"testing"
 	"time"
@@ -15,7 +14,7 @@ func TestKafka(t *testing.T) {
 	})
 	// 不知道为何消费kafka需要4秒，不然就会timeout
 	// kafkaQ, err := queue.NewKafkaQueue("dockervm:9092", "test-consumer-group", "xty", 4*time.Second, 2)
-	kafkaQ, err := queue.NewKafkaQueue(&queue.KafkaQueueOptions{})
+	kafkaQ, err := NewKafkaQueue(&KafkaQueueOptions{})
 	if err != nil {
 		t.Log(err)
 		return

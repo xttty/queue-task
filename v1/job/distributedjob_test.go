@@ -1,9 +1,8 @@
-package job_test
+package job
 
 import (
 	"encoding/json"
 	"math/rand"
-	"queue-task/v1/job"
 	"queue-task/v1/queue"
 	"queue-task/v1/util"
 	"testing"
@@ -39,7 +38,7 @@ func TestDistributeJob(t *testing.T) {
 		json.Unmarshal(data, message)
 		t.Log(*message)
 	}
-	job := job.NewDistributedJob("debug", q, job.SetCircleTime(5*time.Second), job.SetWorkerStrategy(cntFunc))
+	job := NewDistributedJob("debug", q, SetCircleTime(5*time.Second), SetWorkerStrategy(cntFunc))
 	job.RegisterHandleFunc(handleFunc)
 	job.Work()
 	for i := 0; i < 10; i++ {

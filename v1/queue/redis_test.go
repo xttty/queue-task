@@ -1,9 +1,8 @@
-package queue_test
+package queue
 
 import (
 	"encoding/json"
 	"queue-task/v1/msg"
-	"queue-task/v1/queue"
 	"testing"
 )
 
@@ -14,7 +13,7 @@ func TestTest(t *testing.T) {
 			"field2": "data2",
 		},
 	}
-	redis := queue.NewRedisQueue(&queue.RedisQueueOptions{
+	redis := NewRedisQueue(&RedisQueueOptions{
 		Addr: "redis.dev:6379",
 		Key:  "debug",
 	})
